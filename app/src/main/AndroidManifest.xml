@@ -41,7 +41,6 @@
         <activity android:name=".PolicePageActivity" />
         <activity android:name=".RepairShopPageActivity" />
         <activity android:name=".TowingPageActivity" />
-        <activity android:name=".AmbulancePageActivity" />
         <activity android:name=".EditProfilePageActivity" />
         <activity android:name=".ProfilePageActivity" />
 

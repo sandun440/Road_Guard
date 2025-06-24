@@ -3,6 +3,7 @@ package com.s23010305.roadguard;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Patterns;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
@@ -16,12 +17,16 @@ public class SignUpPageActivity extends AppCompatActivity {
     private TextInputEditText firstNameEditText, lastNameEditText, emailEditText, usernameEditText, passwordEditText;
     private TextInputLayout firstNameInputLayout, lastNameInputLayout, emailInputLayout, usernameInputLayout, passwordInputLayout;
     private MaterialButton signUpButton;
+    private DatabaseHelper databaseHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.signup_page);
+
+        // Initialize database helper
+        databaseHelper = DatabaseHelper.getInstance(this);
 
         // Initialize UI elements with null checks
         firstNameInputLayout = findViewById(R.id.fNameInput);
@@ -101,16 +106,90 @@ public class SignUpPageActivity extends AppCompatActivity {
 
         Log.d(TAG, "Signup attempt - Username: " + username + ", Email: " + email);
 
-        if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || username.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show();
+        // Clear previous errors
+        clearErrors();
+
+        // Validate inputs
+        if (firstName.isEmpty()) {
+            firstNameInputLayout.setError("First name is required");
             return;
         }
 
-        Log.d(TAG, "Signup validated for user: " + firstName + " " + lastName);
-        Toast.makeText(this, "Signup validated! Setting up fingerprint...", Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(SignUpPageActivity.this, AddFingerprintActivity.class);
-        startActivity(intent);
-        finish();
-        overridePendingTransition(R.anim.enter, R.anim.exit);
+        if (lastName.isEmpty()) {
+            lastNameInputLayout.setError("Last name is required");
+            return;
+        }
+
+        if (email.isEmpty()) {
+            emailInputLayout.setError("Email is required");
+            return;
+        }
+
+        if (username.isEmpty()) {
+            usernameInputLayout.setError("Username is required");
+            return;
+        }
+
+        if (password.isEmpty()) {
+            passwordInputLayout.setError("Password is required");
+            return;
+        }
+
+        // Validate email format
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            emailInputLayout.setError("Invalid email address");
+            return;
+        }
+
+        // Validate password length
+        if (password.length() < 6) {
+            passwordInputLayout.setError("Password must be at least 6 characters");
+            return;
+        }
+
+        // Check if username is already taken
+        if (databaseHelper.isUsernameTaken(username)) {
+            usernameInputLayout.setError("Username is already taken");
+            return;
+        }
+
+        // Check if email is already taken
+        if (databaseHelper.isEmailTaken(email)) {
+            emailInputLayout.setError("Email is already registered");
+            return;
+        }
+
+        // Add user to database
+        boolean isAdded = databaseHelper.addUser(firstName, lastName, email, username, password);
+
+        if (isAdded) {
+            Log.d(TAG, "User registered successfully: " + username);
+            Toast.makeText(this, "Registration successful! Setting up fingerprint...", Toast.LENGTH_SHORT).show();
+
+            // Print all users for debugging
+
+
+            // Navigate to AddFingerprintActivity, passing user data
+            Intent intent = new Intent(SignUpPageActivity.this, AddFingerprintActivity.class);
+            intent.putExtra("firstName", firstName);
+            intent.putExtra("lastName", lastName);
+            intent.putExtra("email", email);
+            intent.putExtra("username", username);
+            intent.putExtra("password", password);
+            startActivity(intent);
+            finish();
+            overridePendingTransition(R.anim.enter, R.anim.exit);
+        } else {
+            Log.e(TAG, "Failed to register user: " + username);
+            Toast.makeText(this, "Registration failed. Please try again.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void clearErrors() {
+        firstNameInputLayout.setError(null);
+        lastNameInputLayout.setError(null);
+        emailInputLayout.setError(null);
+        usernameInputLayout.setError(null);
+        passwordInputLayout.setError(null);
     }
 }
