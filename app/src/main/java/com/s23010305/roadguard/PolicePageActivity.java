@@ -112,4 +112,6 @@ public class PolicePageActivity extends AppCompatActivity implements OnMapReadyC
         // Example: Send a notification, SMS, or API call to an emergency service
         // This is a placeholder for your actual implementation
     }
+
+
 }

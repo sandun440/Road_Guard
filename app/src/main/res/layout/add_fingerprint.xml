@@ -2,109 +2,71 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/add_fingerprint"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/cream">
+    android:background="@color/cream"
+    android:padding="24dp">
 
+    <!-- Title -->
+    <TextView
+        android:id="@+id/addFingerprintTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Fingerprint"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="40dp" />
+
+    <!-- Subtitle -->
+    <TextView
+        android:id="@+id/addFingerprintSubtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Secure your account with fingerprint login"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@id/addFingerprintTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <!-- Skip Button -->
     <ImageView
         android:id="@+id/fingerprintIcon"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:layout_marginTop="112dp"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="200dp"
+        android:contentDescription="Fingerprint Icon"
         android:src="@drawable/ic_fingerprint"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/promptText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="76dp"
-        android:text="Place your finger on the sensor to authenticate"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.457"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/fingerprintIcon" />
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/promptText"
-        app:layout_constraintVertical_bias="0.1" />
-
-    <TextView
-        android:id="@+id/statusText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textColor="@color/red"
-        android:textSize="16sp"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/progressBar"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <Button
-        android:id="@+id/retryBtn"
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:backgroundTint="@color/orange"
-        android:text="Retry"
-        android:textSize="16sp"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/statusText"
-        app:layout_constraintVertical_bias="0.1" />
-
-    <Button
-        android:id="@+id/addFingerprintBtn"
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="84dp"
-        android:backgroundTint="@color/link_blue"
-        android:text="Add Fingerprint"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/retryBtn" />
+        app:layout_constraintTop_toBottomOf="@id/addFingerprintSubtitle" />
 
     <Button
-        android:id="@+id/cancelBtn"
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:backgroundTint="@color/gray"
-        android:text="Cancel"
-        android:textSize="16sp"
+        android:id="@+id/skipBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:text="Skip"
+        app:layout_constraintBaseline_toBaselineOf="@id/enableBtn"
+        app:layout_constraintEnd_toStartOf="@id/enableBtn" />
+
+    <!-- Enable Button -->
+    <Button
+        android:id="@+id/enableBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enable Fingerprint"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/addFingerprintBtn"
-        app:layout_constraintVertical_bias="0.827" />
-
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Add Fingerprint"
-        android:textSize="40sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/fingerprintIcon"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.772"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.494" />
+        app:layout_constraintVertical_bias="0.948" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -26,23 +26,17 @@ public class HomePageActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.home_page);
 
-        // Logout
-        ImageView logoutImageView = findViewById(R.id.logOutbtn);
-        logoutImageView.setOnClickListener(v -> {
-            SharedPreferences prefs = getSharedPreferences("RoadGuardPrefs", MODE_PRIVATE);
-            prefs.edit().clear().apply();
-
-            Intent intent = new Intent(HomePageActivity.this, LoginPageActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-            overridePendingTransition(R.anim.enter, R.anim.exit);
-        });
-
         // Emergency Call - direct call to 119
         Button emgCallBtn = findViewById(R.id.emgCallBtn);
         emgCallBtn.setOnClickListener(v -> {
             numberToCall = "119";
+            makeDirectCall();
+        });
+
+        // Fire Rescue - direct call to 110
+        Button fireRescueBtn = findViewById(R.id.firerescuebtn);
+        fireRescueBtn.setOnClickListener(v -> {
+            numberToCall = "110";
             makeDirectCall();
         });
 
