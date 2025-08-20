@@ -136,4 +136,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         int rows = db.update(TABLE_USERS, values, COL_USERNAME + "=?", new String[]{ username });
         return rows > 0;
     }
+
+    // DatabaseHelper.java  (add this method)
+    public boolean updateUser(String usernameKey,
+                              String firstName,
+                              String lastName,
+                              String email,
+                              String phone,
+                              String password) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        if (firstName != null) values.put(COL_FIRSTNAME, firstName);
+        if (lastName  != null) values.put(COL_LASTNAME,  lastName);
+        if (email     != null) values.put(COL_EMAIL,     email);
+        if (phone     != null) values.put(COL_PHONE,     phone);
+        if (password  != null) values.put(COL_PASSWORD,  password);
+
+        int rows = db.update(TABLE_USERS, values, COL_USERNAME + "=?", new String[]{ usernameKey });
+        return rows > 0;
+    }
+
 }
