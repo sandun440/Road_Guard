@@ -2,7 +2,6 @@ package com.s23010305.roadguard;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -38,7 +37,11 @@ public class ProfilePageActivity extends AppCompatActivity {
         editProfileBtn.setOnClickListener(v ->
                 startActivity(new Intent(this, EditProfilePageActivity.class))
         );
-        backBtn.setOnClickListener(v -> finish());
+        backBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(ProfilePageActivity.this, HomePageActivity.class);
+            startActivity(intent);
+            finish(); // optional: close ProfilePageActivity so it’s not left in the stack
+        });
 
         logoutBtn.setOnClickListener(v -> {
             SharedPreferences.Editor editor = prefs.edit();
@@ -60,12 +63,12 @@ public class ProfilePageActivity extends AppCompatActivity {
     }
 
     private void bindUser() {
-        String username = prefs.getString("logged_in_username", null);  // <-- use the correct key
+        String username = prefs.getString("logged_in_username", null);
         if (username == null) {
             profileName.setText("Guest");
             profileEmail.setText("");
             profilePhone.setText("Add phone number");
-            profileImageView.setImageResource(R.drawable.profile);
+            ProfileImageUtils.loadInto(this, profileImageView, R.drawable.profile);
             return;
         }
 
@@ -75,7 +78,6 @@ public class ProfilePageActivity extends AppCompatActivity {
                     (user.getLastName()  != null && !user.getLastName().isEmpty() ? " " + user.getLastName() : "");
             profileName.setText(fullName.isEmpty() ? user.getUsername() : fullName);
             profileEmail.setText(user.getEmail() != null ? user.getEmail() : "");
-            // 👇 show a placeholder when phone is null or empty
             String phoneDisplay = (user.getPhone() != null && !user.getPhone().trim().isEmpty())
                     ? user.getPhone()
                     : "Add phone number";
@@ -86,13 +88,7 @@ public class ProfilePageActivity extends AppCompatActivity {
             profilePhone.setText("Add phone number");
         }
 
-        // Optional: load profile image stored in prefs by edit screen
-        String imageUriStr = prefs.getString("profile_image", null);
-        if (imageUriStr != null) {
-            try { profileImageView.setImageURI(Uri.parse(imageUriStr)); }
-            catch (Exception e) { profileImageView.setImageResource(R.drawable.profile); }
-        } else {
-            profileImageView.setImageResource(R.drawable.profile);
-        }
+        // Load the same saved profile image
+        ProfileImageUtils.loadInto(this, profileImageView, R.drawable.profile);
     }
 }

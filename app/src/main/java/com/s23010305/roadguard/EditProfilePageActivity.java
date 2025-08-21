@@ -36,7 +36,6 @@ public class EditProfilePageActivity extends AppCompatActivity {
     Button saveBtn;
     TextView changePhotoText;
 
-    // Material TextInputLayouts (optional: to show placeholderText if you want)
     TextInputLayout nameLayout, emailLayout, phoneLayout, passwordLayout;
 
     private Uri selectedImageUri;
@@ -49,8 +48,8 @@ public class EditProfilePageActivity extends AppCompatActivity {
     private DatabaseHelper db;
     private SharedPreferences prefs;
 
-    private String currentUsername;  // The key used to find the user in DB
-    private User currentUser;        // Cached model
+    private String currentUsername;
+    private User currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,60 +65,38 @@ public class EditProfilePageActivity extends AppCompatActivity {
         saveBtn = findViewById(R.id.saveBtn);
         changePhotoText = findViewById(R.id.changePhotoText);
 
-        // (Optional) layouts to show placeholderText instead of prefill
         nameLayout = findViewById(R.id.nameLayout);
         emailLayout = findViewById(R.id.emailLayout);
         phoneLayout = findViewById(R.id.phoneLayout);
         passwordLayout = findViewById(R.id.passwordLayout);
 
-        // Init DB + prefs
         db = DatabaseHelper.getInstance(this);
         prefs = getSharedPreferences("RoadGuardPrefs", MODE_PRIVATE);
 
-        // Obtain the logged-in username. Adjust to your app’s actual login storage.
         currentUsername = prefs.getString("logged_in_username", null);
         if (currentUsername == null) {
-            // Fallback: try Intent extra if you pass it from the previous screen
             currentUsername = getIntent().getStringExtra("username");
         }
 
-        // Load from DB
         if (currentUsername != null) {
             currentUser = db.getUserByUsername(currentUsername);
         }
 
-        // Fill UI from DB (preferred UX: pre-fill text fields)
+        // Prefill text fields from DB
         if (currentUser != null) {
             String fullName = (currentUser.getFirstName() != null ? currentUser.getFirstName() : "") +
-                    (currentUser.getLastName() != null && !currentUser.getLastName().isEmpty() ? (" " + currentUser.getLastName()) : "");
+                    (currentUser.getLastName() != null && !currentUser.getLastName().isEmpty()
+                            ? (" " + currentUser.getLastName()) : "");
             nameEditText.setText(fullName.trim());
             emailEditText.setText(currentUser.getEmail() != null ? currentUser.getEmail() : "");
             phoneEditText.setText(currentUser.getPhone() != null ? currentUser.getPhone() : "");
             passwordEditText.setText(currentUser.getPassword() != null ? currentUser.getPassword() : "");
         } else {
-            // If we couldn't find the user, keep fields empty but you could also Toast an info.
             Toast.makeText(this, "User not found in database", Toast.LENGTH_SHORT).show();
         }
 
-        // If you specifically want “placeholders” (grayed text) instead of prefilling:
-        // (Uncomment these 4 lines and comment out the setText(...) section above)
-        /*
-        if (currentUser != null) {
-            String fullNamePH = (currentUser.firstName != null ? currentUser.firstName : "") +
-                    (currentUser.lastName != null && !currentUser.lastName.isEmpty() ? (" " + currentUser.lastName) : "");
-            nameLayout.setPlaceholderText(fullNamePH.trim());
-            emailLayout.setPlaceholderText(currentUser.email);
-            phoneLayout.setPlaceholderText(currentUser.phone);
-            passwordLayout.setPlaceholderText(currentUser.password);
-        }
-        */
-
-        // Load saved profile image from SharedPreferences (we’ll keep image outside the DB)
-        String imageUriStr = prefs.getString("profile_image", null);
-        if (imageUriStr != null) {
-            selectedImageUri = Uri.parse(imageUriStr);
-            profileImage.setImageURI(selectedImageUri);
-        }
+        // Load saved profile image into the preview
+        ProfileImageUtils.loadInto(this, profileImage, R.drawable.profile);
 
         // Image picker (Camera + Gallery)
         imagePickerLauncher = registerForActivityResult(
@@ -137,7 +114,7 @@ public class EditProfilePageActivity extends AppCompatActivity {
                     }
                 });
 
-        // Permission launcher
+        // Permission launcher (single permission flow kept as-is)
         requestPermissionLauncher = registerForActivityResult(
                 new ActivityResultContracts.RequestPermission(),
                 isGranted -> {
@@ -154,7 +131,6 @@ public class EditProfilePageActivity extends AppCompatActivity {
                 });
 
         changePhotoText.setOnClickListener(v -> requestPermissionAndPick());
-
         saveBtn.setOnClickListener(v -> onSaveClicked());
     }
 
@@ -164,13 +140,11 @@ public class EditProfilePageActivity extends AppCompatActivity {
             return;
         }
 
-        // Read UI values
         String fullName  = nameEditText.getText().toString().trim();
         String email     = emailEditText.getText().toString().trim();
         String phone     = phoneEditText.getText().toString().trim();
         String password  = passwordEditText.getText().toString().trim();
 
-        // Split full name into first/last
         String firstName = "";
         String lastName  = "";
         if (!fullName.isEmpty()) {
@@ -179,7 +153,6 @@ public class EditProfilePageActivity extends AppCompatActivity {
             if (parts.length > 1) lastName = parts[1];
         }
 
-        // If user left any field blank, keep existing values
         if (currentUser != null) {
             if (firstName.isEmpty()) firstName = currentUser.getFirstName();
             if (lastName.isEmpty())  lastName  = currentUser.getLastName();
@@ -188,12 +161,10 @@ public class EditProfilePageActivity extends AppCompatActivity {
             if (password.isEmpty())  password  = currentUser.getPassword();
         }
 
-        // Update DB (handle uniqueness errors)
         boolean ok;
         try {
             ok = db.updateUser(currentUsername, firstName, lastName, email, phone, password);
         } catch (Exception ex) {
-            // UNIQUE(email) or other constraint might throw
             Toast.makeText(this, "Update failed: " + ex.getMessage(), Toast.LENGTH_LONG).show();
             return;
         }
@@ -203,19 +174,15 @@ public class EditProfilePageActivity extends AppCompatActivity {
             return;
         }
 
-        // Persist image URI in SharedPreferences (we keep image outside DB)
-        SharedPreferences.Editor editor = prefs.edit();
+        // Save the chosen image Uri (shared across the app)
         if (selectedImageUri != null) {
-            editor.putString("profile_image", selectedImageUri.toString());
+            ProfileImageUtils.saveUriString(this, selectedImageUri.toString());
         }
-        editor.apply();
 
         Toast.makeText(this, "Profile Saved Successfully!", Toast.LENGTH_SHORT).show();
 
-        // Refresh in-memory user cache (optional)
         currentUser = db.getUserByUsername(currentUsername);
 
-        // Navigate back
         startActivity(new Intent(this, ProfilePageActivity.class));
         finish();
     }
@@ -233,7 +200,6 @@ public class EditProfilePageActivity extends AppCompatActivity {
                 ContextCompat.checkSelfPermission(this, cameraPermission) == PackageManager.PERMISSION_GRANTED) {
             showImagePickerOptions();
         } else {
-            // Launch separately; the second will no-op if the permission is already granted.
             requestPermissionLauncher.launch(mediaPermission);
             requestPermissionLauncher.launch(cameraPermission);
         }
@@ -244,11 +210,8 @@ public class EditProfilePageActivity extends AppCompatActivity {
         new AlertDialog.Builder(this)
                 .setTitle("Select Image From")
                 .setItems(options, (dialog, which) -> {
-                    if (which == 0) {
-                        openCamera();
-                    } else {
-                        pickImage();
-                    }
+                    if (which == 0) openCamera();
+                    else pickImage();
                 })
                 .show();
     }

@@ -18,6 +18,7 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.loading_page); // This is your loading page
 
+
         // Delay for 2 seconds, then open FirstPageActivity
         new Handler().postDelayed(() -> {
             Intent intent = new Intent(MainActivity.this, FirstPageActivity.class);

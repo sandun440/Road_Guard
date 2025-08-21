@@ -96,17 +96,21 @@
         app:layout_constraintVertical_bias="0.55"
         app:srcCompat="@drawable/towingcard" />
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/profile"
         android:layout_width="45dp"
         android:layout_height="45dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.956"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.051"
-        app:srcCompat="@drawable/profile" />
+        app:srcCompat="@drawable/profile"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.CircleImage"
+        />
 
     <Button
         android:id="@+id/firerescuebtn"

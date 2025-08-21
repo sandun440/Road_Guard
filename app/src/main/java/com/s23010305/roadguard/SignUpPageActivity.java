@@ -84,8 +84,8 @@ public class SignUpPageActivity extends AppCompatActivity {
             // 👉 Save logged-in user so Profile/Edit screens know who to load
             SharedPreferences prefs = getSharedPreferences("RoadGuardPrefs", MODE_PRIVATE);
             prefs.edit()
-                    .putString("logged_in_username", username)   // 🔑 main key used everywhere
-                    .putBoolean("isLoggedIn", true)             // optional flags
+                    .putString("logged_in_username", username)
+                    .putBoolean("isLoggedIn", true)
                     .apply();
 
             Toast.makeText(this, "Registered successfully!", Toast.LENGTH_SHORT).show();

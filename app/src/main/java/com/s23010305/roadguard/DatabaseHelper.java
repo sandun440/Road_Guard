@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     // --- DB meta ---
-    private static final String DATABASE_NAME = "roadguard.db";
+    private static final String DATABASE_NAME = "RoadGuard.db";
     private static final int DATABASE_VERSION = 1;
 
     private static DatabaseHelper instance;

@@ -30,15 +30,21 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Profile Image -->
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/profileImageView"
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:layout_marginTop="24dp"
+        android:scaleType="centerCrop"
         android:src="@drawable/profile"
         app:layout_constraintTop_toBottomOf="@id/profileTitle"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.CircleImage"
+        app:layout_constraintDimensionRatio="1:1"
+        app:strokeWidth="2dp"
+        app:strokeColor="@color/black" />
+
 
     <!-- Name -->
     <TextView
@@ -62,6 +68,7 @@
         android:layout_marginTop="36dp"
         android:text="user@email.com"
         android:textSize="16sp"
+        android:textColor="@color/black"
         app:layout_constraintTop_toBottomOf="@id/profileName"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -74,6 +81,7 @@
         android:layout_marginTop="32dp"
         android:text="Edit profile for enter phone number"
         android:textSize="16sp"
+        android:textColor="@color/black"
         app:layout_constraintTop_toBottomOf="@id/profileEmail"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
