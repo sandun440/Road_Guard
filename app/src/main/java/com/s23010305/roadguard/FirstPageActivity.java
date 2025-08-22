@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 
@@ -16,10 +17,15 @@ import java.util.concurrent.Executor;
 
 public class FirstPageActivity extends AppCompatActivity {
 
+    private static final String PREFS = "RoadGuardPrefs";
+    private static final String KEY_FP_USER = "fingerprintUser";
+    private static final String KEY_FP_ENABLED = "isFingerprintEnabled";
+    private static final String KEY_CURRENT_USER = "currentUsername"; // set this after password login
+
     private Button loginBtn, signupBtn;
     private ImageView fingerprintIcon;
-    private DatabaseHelper databaseHelper;
-    private String lastLoggedInUsername;
+
+    private String fingerprintUser;
     private boolean isFingerprintEnabled;
 
     private BiometricPrompt biometricPrompt;
@@ -34,22 +40,29 @@ public class FirstPageActivity extends AppCompatActivity {
         signupBtn = findViewById(R.id.signupBtn);
         fingerprintIcon = findViewById(R.id.fingerprintIcon);
 
-        databaseHelper = DatabaseHelper.getInstance(this);
+        // Load fingerprint prefs
+        SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+        fingerprintUser = prefs.getString(KEY_FP_USER, null);
+        isFingerprintEnabled = prefs.getBoolean(KEY_FP_ENABLED, false);
 
-        // Load last logged-in username and fingerprint flag
-        SharedPreferences prefs = getSharedPreferences("RoadGuardPrefs", MODE_PRIVATE);
-        lastLoggedInUsername = prefs.getString("currentUsername", null);
-        isFingerprintEnabled = prefs.getBoolean("isFingerprintEnabled", false);
-
-        // Login button
+        // Buttons for normal flow
         loginBtn.setOnClickListener(v -> startActivity(new Intent(this, LoginPageActivity.class)));
-
-        // Signup button
         signupBtn.setOnClickListener(v -> startActivity(new Intent(this, SignUpPageActivity.class)));
 
-        // Setup biometric authentication
+        // Check biometric availability; if not available, disable the fingerprint icon
+        BiometricManager bm = BiometricManager.from(this);
+        int canAuth = bm.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG);
+        boolean biometricAvailable = (canAuth == BiometricManager.BIOMETRIC_SUCCESS);
+
+        if (!biometricAvailable) {
+            if (fingerprintIcon != null) fingerprintIcon.setEnabled(false);
+        }
+
+        // Prepare prompt
         Executor executor = ContextCompat.getMainExecutor(this);
-        biometricPrompt = new BiometricPrompt(this, executor,
+        biometricPrompt = new BiometricPrompt(
+                this,
+                executor,
                 new BiometricPrompt.AuthenticationCallback() {
                     @Override
                     public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
@@ -62,9 +75,9 @@ public class FirstPageActivity extends AppCompatActivity {
                         super.onAuthenticationSucceeded(result);
                         Toast.makeText(FirstPageActivity.this, "Fingerprint recognized!", Toast.LENGTH_SHORT).show();
 
-                        // ✅ Navigate directly to HomePage
+                        // Navigate directly to HomePage with the fingerprint-bound user
                         Intent intent = new Intent(FirstPageActivity.this, HomePageActivity.class);
-                        intent.putExtra("username", lastLoggedInUsername);
+                        intent.putExtra("username", fingerprintUser);
                         startActivity(intent);
                         finish();
                     }
@@ -74,7 +87,8 @@ public class FirstPageActivity extends AppCompatActivity {
                         super.onAuthenticationFailed();
                         Toast.makeText(FirstPageActivity.this, "Authentication failed. Try again.", Toast.LENGTH_SHORT).show();
                     }
-                });
+                }
+        );
 
         promptInfo = new BiometricPrompt.PromptInfo.Builder()
                 .setTitle("Fingerprint Login")
@@ -82,10 +96,14 @@ public class FirstPageActivity extends AppCompatActivity {
                 .setNegativeButtonText("Cancel")
                 .build();
 
-        // Fingerprint login button
+        // Fingerprint login button behavior
         if (fingerprintIcon != null) {
             fingerprintIcon.setOnClickListener(v -> {
-                if (!isFingerprintEnabled || lastLoggedInUsername == null) {
+                if (!biometricAvailable) {
+                    Toast.makeText(this, "Biometric not available on this device", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (!isFingerprintEnabled || fingerprintUser == null || fingerprintUser.trim().isEmpty()) {
                     Toast.makeText(this, "No fingerprint login available", Toast.LENGTH_SHORT).show();
                 } else {
                     biometricPrompt.authenticate(promptInfo);
