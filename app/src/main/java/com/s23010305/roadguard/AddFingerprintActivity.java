@@ -18,7 +18,7 @@ public class AddFingerprintActivity extends AppCompatActivity {
 
     private String username;
     private Button skipButton, enableButton;
-    private ImageView fingerprintIcon;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +28,6 @@ public class AddFingerprintActivity extends AppCompatActivity {
         username = getIntent().getStringExtra("username");
         skipButton = findViewById(R.id.skipBtn);
         enableButton = findViewById(R.id.enableBtn);
-        fingerprintIcon = findViewById(R.id.fingerprintIcon);
 
         // Check biometric availability
         BiometricManager biometricManager = BiometricManager.from(this);
